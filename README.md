@@ -26,6 +26,7 @@ Noora 2.0 is a conversational social skills training application enhanced with h
     pip install flask
     pip install together
     ```
+3. Insert Together API key in `app.py`
 
 ## Usage
 1. Start the Flask application:
