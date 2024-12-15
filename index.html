@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Meta tags and external resources -->
+    <meta charset="UTF-8" />
+    <title>Noora</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="icon" type="image/png" href="static/assets/logo-icon.PNG" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header Section: Logo, Title and Navigation -->
+      <header>
+        <!-- Left header: Noora branding and Stanford logo -->
+        <div class="header-left">
+          <img
+            src="static/assets/lamp.PNG"
+            alt="Lamp Icon"
+            class="flame-icon"
+          />
+          <div class="noora-text">
+            <div class="noora-title">
+              <span>NOORA</span><span class="version"> 2.0</span>
+            </div>
+            <div class="noora-subtitle">
+              <div class="logo-container">
+                <img
+                  src="static/assets/stanford.png"
+                  alt="Stanford Logo"
+                  class="stanford-logo"
+                />
+              </div>
+              <div class="lab-title">Open Virtual Assistant Lab</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right header: Module selection and user profile -->
+        <div class="header-right">
+          <div class="module-dropdown">
+            <button class="facial-expressions-btn">
+              Facial Expressions
+              <i class="fa-solid fa-angle-down"></i>
+            </button>
+            <div class="module-list">
+              <div class="module-item">Empathy</div>
+              <div class="module-item">Talking Right Amount</div>
+              <div class="module-item">Asking Relevant Questions</div>
+              <div class="module-item">Starting a Conversation</div>
+              <div class="module-item">Compliments</div>
+              <div class="module-item">Tactful Responses</div>
+              <div class="module-item">Getting to Know You</div>
+              <div class="module-item">Being Asked to Give Advice</div>
+              <div class="module-item">Healthy Criticism</div>
+              <div class="module-item">Harmful Criticism</div>
+            </div>
+          </div>
+          <button class="profile-button">
+            <i class="fa-solid fa-user"></i>
+            Mihir
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <!-- Left sidebar: Timer and progress tracking -->
+        <div class="left-column">
+          <div class="time-taken">
+            <div class="time-label">
+              <i class="fa-solid fa-clock clock-icon"></i>
+              <span>Time Taken: <span id="timer">00:00</span></span>
+            </div>
+          </div>
+          <div class="progress-section">
+            <div class="progress-label">
+              <i class="fa-solid fa-chart-simple progress-icon"></i>
+              <span>Progress</span>
+            </div>
+            <div class="progress-circles">
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+            </div>
+          </div>
+          <div class="counts-container">
+            <div class="count-item">
+              <div class="count-number">
+                <span class="big-number" id="current-scenario">0</span
+                ><span class="small-number">/20</span>
+              </div>
+              <div class="count-label">scenarios</div>
+            </div>
+            <div class="count-item">
+              <div class="count-number">
+                <span class="big-number" id="correct-count">0</span
+                ><span class="small-number">/20</span>
+              </div>
+              <div class="count-label">correct</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main chat interface -->
+        <div class="right-column">
+          <div class="chat-container" id="chat-container">
+            <div class="instruction-box">
+              <p>
+                Hi there, I'm Noora! Let's practice responding to people in the
+                following 20 situations. I'll show you a facial expression, and
+                you respond with what you would say.
+              </p>
+            </div>
+          </div>
+          <div id="emotion-buttons" style="margin-top: 20px"></div>
+          <div class="blur-background"></div>
+          <!-- User input and controls -->
+          <div class="reply-section">
+            <i
+              class="fa-solid fa-comment"
+              style="font-size: 20px; color: #666"
+            ></i>
+            <input
+              type="text"
+              placeholder="Reply back"
+              class="reply-input"
+              id="reply-input"
+            />
+            <button id="submit-btn" class="scroll-top">
+              <i class="fa-solid fa-circle-arrow-up"></i>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Core variables and DOM elements
+      const replyInput = document.getElementById("reply-input");
+      const chatContainer = document.getElementById("chat-container");
+      const submitBtn = document.getElementById("submit-btn");
+      const timerSpan = document.getElementById("timer");
+      const currentScenarioSpan = document.getElementById("current-scenario");
+      const correctCountSpan = document.getElementById("correct-count");
+
+      let timerInterval;
+      let currentScenario = 0;
+      let correctCount = 0;
+      let hasUserInteracted = false;
+
+      // Timer functionality
+      const startTimer = () => {
+        let seconds = 0;
+        timerInterval = setInterval(() => {
+          seconds++;
+          const minutes = Math.floor(seconds / 60);
+          const remainingSeconds = seconds % 60;
+          timerSpan.innerText = `${String(minutes).padStart(2, "0")}:${String(
+            remainingSeconds
+          ).padStart(2, "0")}`;
+        }, 1000);
+      };
+
+      // Chat auto-scroll functionality
+      const scrollToBottom = () => {
+        if (hasUserInteracted) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      };
+
+      // Expression generation and display
+      const generateExpression = async () => {
+        replyInput.disabled = true;
+        submitBtn.disabled = true;
+
+        const loadingMessageDiv = document.createElement("div");
+        loadingMessageDiv.classList.add("chat-message", "noora-message");
+        loadingMessageDiv.innerText = "Generating... Please wait.";
+        chatContainer.appendChild(loadingMessageDiv);
+        scrollToBottom();
+
+        try {
+          const response = await fetch("/generate");
+          const data = await response.json();
+
+          loadingMessageDiv.remove();
+
+          const expressionContainer = document.createElement("div");
+          expressionContainer.classList.add("expression-container");
+
+          if (data.image_url) {
+            const imageElement = document.createElement("img");
+            imageElement.src = data.image_url;
+            imageElement.alt = "Facial Expression";
+            imageElement.classList.add("expression-image");
+            expressionContainer.appendChild(imageElement);
+          }
+
+          const statementDiv = document.createElement("div");
+          statementDiv.classList.add("expression-statement");
+          statementDiv.innerHTML = `<em>"${data.statement}"</em>`;
+          expressionContainer.appendChild(statementDiv);
+          const contextDiv = document.createElement("div");
+          contextDiv.classList.add("expression-context");
+          contextDiv.innerHTML = `<p>Context: ${data.context}</p>`;
+          expressionContainer.appendChild(contextDiv);
+
+          const emotionButtonsDiv = document.createElement("div");
+          emotionButtonsDiv.classList.add("emotion-buttons");
+          data.emotions.forEach((emotion) => {
+            const button = document.createElement("button");
+            button.innerText = emotion;
+            button.classList.add("emotion-button");
+
+            button.addEventListener("click", () => {
+              if (emotion === data.correct_emotion) {
+                button.style.backgroundColor = "#00cc66";
+              } else {
+                button.style.backgroundColor = "#ff3333";
+              }
+
+              Array.from(emotionButtonsDiv.children).forEach((btn) => {
+                btn.disabled = true;
+              });
+            });
+
+            emotionButtonsDiv.appendChild(button);
+          });
+
+          expressionContainer.appendChild(emotionButtonsDiv);
+
+          chatContainer.appendChild(expressionContainer);
+          scrollToBottom();
+
+          window.currentExpression = {
+            statement: data.statement,
+            correct_emotion: data.correct_emotion,
+            intensity: data.intensity,
+            context: data.context,
+          };
+        } catch (error) {
+          console.error("Error generating expression:", error);
+        } finally {
+          replyInput.disabled = false;
+          submitBtn.disabled = false;
+        }
+      };
+
+      // Progress tracking
+      const updateProgressCircles = (isCorrect) => {
+        const circles = document.querySelectorAll(".progress-circles .circle");
+        const currentIndex = currentScenario - 1;
+
+        if (currentIndex >= 0 && currentIndex < circles.length) {
+          const currentCircle = circles[currentIndex];
+          currentCircle.classList.remove("correct", "incorrect");
+
+          if (isCorrect) {
+            currentCircle.classList.add("correct");
+            currentCircle.style.backgroundColor = "#00cc66";
+          } else {
+            currentCircle.classList.add("incorrect");
+            currentCircle.style.backgroundColor = "#ff3333";
+          }
+        }
+      };
+
+      // Response evaluation
+      const evaluateUserResponse = async (userReply) => {
+        if (!window.currentExpression) return;
+
+        const { statement, correct_emotion, intensity, context } =
+          window.currentExpression;
+
+        const loadingMessageDiv = document.createElement("div");
+        loadingMessageDiv.classList.add("chat-message", "noora-message");
+        loadingMessageDiv.innerText =
+          "Evaluating your response... Please wait.";
+        chatContainer.appendChild(loadingMessageDiv);
+        scrollToBottom();
+
+        try {
+          const response = await fetch("/evaluate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_reply: userReply,
+              statement,
+              correct_emotion,
+              intensity,
+              context,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data && data.evaluation && data.feedback) {
+            loadingMessageDiv.remove();
+
+            const evaluationContainer = document.createElement("div");
+            evaluationContainer.classList.add("expression-container");
+
+            const evaluationStatementDiv = document.createElement("div");
+            evaluationStatementDiv.classList.add("expression-statement");
+            evaluationStatementDiv.innerHTML = `<em>${data.evaluation}: ${data.feedback}</em>`;
+            evaluationContainer.appendChild(evaluationStatementDiv);
+
+            const evaluationDiv = document.createElement("div");
+            evaluationDiv.classList.add("facial-expression");
+            evaluationDiv.appendChild(evaluationContainer);
+
+            chatContainer.appendChild(evaluationDiv);
+            scrollToBottom();
+
+            const isCorrect = data.evaluation.toLowerCase() === "correct";
+            if (isCorrect) {
+              correctCount++;
+              correctCountSpan.innerText = correctCount;
+            }
+            updateProgressCircles(isCorrect);
+          } else {
+            throw new Error(
+              "Invalid response format received from evaluation."
+            );
+          }
+        } catch (error) {
+          loadingMessageDiv.remove();
+
+          scrollToBottom();
+        } finally {
+          generateExpression();
+        }
+      };
+
+      // Event Listeners
+      submitBtn.addEventListener("click", () => {
+        if (replyInput.value.trim() !== "") {
+          hasUserInteracted = true;
+          const userReply = replyInput.value.trim();
+          replyInput.value = "";
+          currentScenario++;
+          currentScenarioSpan.innerText = currentScenario;
+
+          const userMessageDiv = document.createElement("div");
+          userMessageDiv.classList.add("chat-message", "user-message");
+          userMessageDiv.innerText = userReply;
+          chatContainer.appendChild(userMessageDiv);
+          scrollToBottom();
+
+          evaluateUserResponse(userReply);
+        }
+      });
+
+      replyInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter" && replyInput.value.trim() !== "") {
+          event.preventDefault();
+          submitBtn.click();
+        }
+      });
+
+      // Initialize on page load
+      window.addEventListener("load", () => {
+        startTimer();
+        generateExpression();
+      });
+
+      // Module dropdown functionality
+      document.addEventListener("DOMContentLoaded", () => {
+        const button = document.querySelector(".facial-expressions-btn");
+        const dropdown = button.closest(".module-dropdown");
+
+        button.addEventListener("click", (e) => {
+          e.stopPropagation();
+          dropdown.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("active");
+          }
+        });
+
+        document.querySelectorAll(".module-item").forEach((item) => {
+          item.addEventListener("mouseenter", () => {
+            item.style.backgroundColor = "#ffb224";
+          });
+
+          item.addEventListener("mouseleave", () => {
+            item.style.backgroundColor = "transparent";
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
